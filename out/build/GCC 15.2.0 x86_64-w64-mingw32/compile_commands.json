@@ -1,0 +1,8 @@
+[
+{
+  "directory": "D:/Dev-Cpp/out/build/GCC 15.2.0 x86_64-w64-mingw32",
+  "command": "C:\\mingw64\\bin\\g++.exe   -g -o CMakeFiles\\jiecheng.dir\\guess1.cpp.obj -c D:\\Dev-Cpp\\guess1.cpp",
+  "file": "D:/Dev-Cpp/guess1.cpp",
+  "output": "CMakeFiles/jiecheng.dir/guess1.cpp.obj"
+}
+]

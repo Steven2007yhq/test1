@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交小科 - 钱学森图书馆智能助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* 左侧功能菜单 */
+        .sidebar {
+            width: 280px;
+            background-color: #fff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            color: #1a73e8;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .menu {
+            flex: 1;
+        }
+        
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background-color: #e4f0fd;
+            color: #1a73e8;
+            transform: translateX(5px);
+        }
+        
+        .menu-item.active {
+            background-color: #1a73e8;
+            color: #fff;
+        }
+        
+        /* 右侧聊天区域 */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f7fa;
+        }
+        
+        .chat-header {
+            background-color: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .chat-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        /* 聊天消息区域 */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background-color: #1a73e8;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.assistant {
+            align-self: flex-start;
+            background-color: #fff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-system {
+            align-self: center;
+            background-color: #e8f0fe;
+            color: #666;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        
+        /* 输入区域 */
+        .chat-input-area {
+            background-color: #fff;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            resize: none;
+            max-height: 120px;
+            min-height: 50px;
+        }
+        
+        .send-btn {
+            background-color: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            background-color: #1557b0;
+            transform: scale(1.05);
+        }
+        
+        /* 功能模块 */
+        .module {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .module.active {
+            display: block;
+        }
+        
+        .module h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        /* 演讲稿生成模块样式 */
+        #speech-module {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            background-color: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #1557b0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .speech-result {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .speech-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            
+            .logo {
+                display: none;
+            }
+            
+            .menu {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .menu-item {
+                flex: 1;
+                text-align: center;
+                margin-bottom: 0;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .speech-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* 机器人头像样式 */
+        .robot-avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .robot-head {
+            width: 80px;
+            height: 80px;
+            background-color: #1a73e8;
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px rgba(26, 115, 232, 0.5);
+        }
+        
+        .robot-eye {
+            width: 15px;
+            height: 15px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 30%;
+            animation: blink 4s infinite;
+        }
+        
+        .robot-eye.left {
+            left: 20px;
+        }
+        
+        .robot-eye.right {
+            right: 20px;
+        }
+        
+        .robot-mouth {
+            width: 30px;
+            height: 5px;
+            background-color: white;
+            border-radius: 2.5px;
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+        }
+        
+        .robot-body {
+            width: 60px;
+            height: 40px;
+            background-color: #1557b0;
+            border-radius: 20px;
+        }
+        
+        /* 系统信息样式 */
+        .system-info {
+            padding: 15px;
+            margin-top: auto;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .time-display {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .online-count {
+            color: #1a73e8;
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes blink {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧功能菜单 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>交小科</h1>
+                <p>钱学森图书馆智能助手</p>
+            </div>
+            
+            <!-- 机器人头像 -->
+            <div class="robot-avatar">
+                <div class="robot-head">
+                    <div class="robot-eye left"></div>
+                    <div class="robot-eye right"></div>
+                    <div class="robot-mouth"></div>
+                </div>
+                <div class="robot-body"></div>
+            </div>
+            
+            <div class="menu">
+                <button class="menu-item active" onclick="showModule('chat')">💬 聊天对话</button>
+                <button class="menu-item" onclick="showModule('speech')">📝 演讲稿生成</button>
+            </div>
+            
+            <!-- 系统信息 -->
+            <div class="system-info">
+                <div class="time-display" id="sidebar-time">2026年1月11日 19:00:00</div>
+                <div class="online-count">在线人数: <span id="sidebar-online">123</span></div>
+            </div>
+        </div>
+        
+        <!-- 右侧聊天区域 -->
+        <div class="chat-area">
+            <!-- 聊天模块 -->
+            <div id="chat-module" class="module active">
+                <div class="chat-header">
+                    <h2>与交小科对话</h2>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message message-system">
+                        您好！我是交小科，很高兴为您服务。您可以问我关于钱学森图书馆的任何问题。
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-container">
+                        <textarea id="message-input" placeholder="请输入您的问题..."></textarea>
+                        <button class="send-btn" onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 演讲稿生成模块 -->
+            <div id="speech-module" class="module">
+                <h3>📝 演讲稿生成</h3>
+                <form id="speech-form" onsubmit="generateSpeech(event)">
+                    <div class="form-group">
+                        <label for="speech-topic">演讲主题</label>
+                        <input type="text" id="speech-topic" placeholder="请输入演讲主题，例如：钱学森的科学精神" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-keywords">关键词（用逗号分隔）</label>
+                        <textarea id="speech-keywords" placeholder="请输入关键词，例如：钱学森,科学精神,航天事业"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-audience">演讲对象</label>
+                        <select id="speech-audience" name="audience">
+                            <option value="小学生">小学生</option>
+                            <option value="中学生">中学生</option>
+                            <option value="大学生">大学生</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-audience-size">听众规模</label>
+                        <select id="speech-audience-size" name="audience_size">
+                            <option value="小型（1-30人）">小型（1-30人）</option>
+                            <option value="中型（30-100人）">中型（30-100人）</option>
+                            <option value="大型（100人以上）">大型（100人以上）</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="speech-date-type">日期特性</label>
+                        <select id="speech-date-type" name="date_type">
+                            <option value="工作日">工作日</option>
+                            <option value="周末">周末</option>
+                            <option value="法定节假日">法定节假日</option>
+                            <option value="纪念日">纪念日</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">生成演讲稿</button>
+                </form>
+                <div class="speech-actions">
+                    <button class="btn btn-secondary" onclick="exportSpeech()" id="export-btn" disabled>📥 导出Word文档</button>
+                </div>
+                <div class="speech-result" id="speech-result"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Socket.io和自定义JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+    <script>
+        // 更新系统时间
+        function updateSystemTime() {
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = String(now.getMonth() + 1).padStart(2, '0');
+            let day = String(now.getDate()).padStart(2, '0');
+            let hours = String(now.getHours()).padStart(2, '0');
+            let minutes = String(now.getMinutes()).padStart(2, '0');
+            let seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            let timeString = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+            document.getElementById('sidebar-time').textContent = timeString;
+        }
+        
+        // 更新在线人数
+        function updateOnlineCount() {
+            // 模拟在线人数，实际项目中可以从服务器获取
+            let baseCount = 120;
+            let randomVariation = Math.floor(Math.random() * 20) - 10; // -10 到 10 之间的随机数
+            let onlineCount = baseCount + randomVariation;
+            
+            document.getElementById('sidebar-online').textContent = onlineCount;
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化并开始更新系统时间
+            updateSystemTime();
+            setInterval(updateSystemTime, 1000);
+            
+            // 初始化并开始更新在线人数
+            updateOnlineCount();
+            setInterval(updateOnlineCount, 30000); // 每30秒更新一次
+        });
+    </script>
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>

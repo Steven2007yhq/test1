@@ -1,0 +1,14 @@
+# C/C++ 编译文件
+*.exe
+*.out
+*.o
+*.obj
+
+# 构建目录
+build/
+out/
+Debug/
+Release/
+
+# VS Code 配置
+.vscode/
