@@ -1,0 +1,65 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+// 邻接表实现的图
+class GraphAdjList {
+private:
+    int numVertices;          // 顶点数
+    vector<vector<int>> adj;  // 核心：邻接表（每个顶点对应一个vector）
+
+public:
+    // 构造函数：初始化顶点数，邻接表为空
+    GraphAdjList(int vertices) {
+        numVertices = vertices;
+        adj.resize(vertices); // 给每个顶点分配一个空的vector
+    }
+
+    // 添加边：无向图（v和w互相加入对方的邻居清单）
+    void addEdge(int v, int w) {
+        adj[v].push_back(w);  // w加入v的邻居清单
+        adj[w].push_back(v);  // v加入w的邻居清单（有向图删掉这行）
+    }
+
+    // 打印邻接表（直观看到结构）
+    void printAdjList() {
+        for (int i = 0; i < numVertices; i++) {
+            cout << "顶点" << i << "的邻居：";
+            for (int neighbor : adj[i]) { // 遍历i的所有邻居
+                cout << neighbor << " ";
+            }
+            cout << endl;
+        }
+    }
+
+    // 你熟悉的DFS（适配邻接表）
+    void DFS(int v, vector<bool>& visited) {
+        visited[v] = true;
+        cout << v << "\t";
+        // 直接遍历v的邻居清单，不用firstadj/nextadj
+        for (int neighbor : adj[v]) {
+            if (!visited[neighbor]) {
+                DFS(neighbor, visited);
+            }
+        }
+    }
+
+};
+// 测试
+int main() {
+    GraphAdjList g(5);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 3);
+    g.addEdge(1, 4);
+
+    // 打印邻接表（看结构）
+    cout << "邻接表结构：" << endl;
+    g.printAdjList();
+
+    // 测试DFS
+    vector<bool> visited(5, false);
+    cout << "\nDFS从顶点0开始：" << endl;
+    g.DFS(0, visited); // 输出：0    1    3    4    2
+
+    return 0;
+}
